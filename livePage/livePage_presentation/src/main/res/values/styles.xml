@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MyCustomButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@drawable/ic_basket</item>
+        <item name="thumbTint">@color/selector_thum</item>
+        <item name="trackTint">@color/selector_track</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+</resources>
