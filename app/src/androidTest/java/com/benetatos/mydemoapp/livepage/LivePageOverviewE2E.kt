@@ -3,6 +3,7 @@ package com.benetatos.mydemoapp.livepage
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.isDisplayed
@@ -42,11 +43,15 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import okhttp3.Route
+import okhttp3.internal.notify
 import okhttp3.internal.notifyAll
 import org.junit.Before
 import org.junit.Rule
@@ -61,7 +66,7 @@ class LivePageOverviewE2E {
     val hiltRule = HiltAndroidRule(this)
 
     @get:Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
+    val composeTestRule = createComposeRule()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @get:Rule
@@ -75,6 +80,7 @@ class LivePageOverviewE2E {
     fun setUp() {
         hiltRule.inject()
         repositoryFake = LiveGamesRepositoryFake()
+        repositoryFakeSetUp()
         val getLiveGamesUseCase = GetLiveGamesUseCase(repositoryFake)
         val getAllFavoriteLiveGamesUseCase = GetAllFavoriteLiveGamesUseCase(repositoryFake)
 
@@ -90,19 +96,33 @@ class LivePageOverviewE2E {
         )
         livePageViewModel = LivePageViewModel(livePageUseCases)
 
-        composeTestRule.activity.setContent {
-
-            MyDemoAppTheme {
-                LiveGameScreen(livePageViewModel)
-            }
+        composeTestRule.setContent {
+            LiveGameScreen(viewModel = livePageViewModel)
         }
+
     }
+
+
 
     @Test
     fun allElementsAreVisibleAtFirstSport() {
 
-        var currentState : LiveGamesState= LiveGamesState.Loading
+        composeTestRule.waitUntil(timeoutMillis = 5_000) {
+            livePageViewModel.state.value is LiveGamesState.Data
+        }
+//
+//        composeRule.onNodeWithText("MossFK").assertIsDisplayed()
+//        composeRule.onNodeWithText("DenmarkU19").assertIsDisplayed()
+//        composeRule.onNodeWithText("SpainU19").assertIsDisplayed()
+//        composeRule.onNodeWithText("BarrowII").assertIsDisplayed()
+//        composeRule.onNodeWithText("SalfordCityII").assertIsNotDisplayed()
+//
+//        composeRule.onNodeWithTag(testTag = "rowItem0").assertIsDisplayed()
 
+    }
+
+
+    fun repositoryFakeSetUp(){
         repositoryFake.liveGames = mutableListOf(
             Sport(
                 sportIcon = null,
@@ -194,64 +214,5 @@ class LivePageOverviewE2E {
                 )
             )
         )
-        runTest {
-            val test = livePageViewModel.state.value
-
-
-        }
-
-
-
-
-
-
-//       livePageViewModel.viewModelScope.launch {
-//           livePageViewModel.state.value = LiveGamesState.Data
-//       }
-
-
-//        composeTestRule.waitUntil(timeoutMillis = 5_000) {
-//            val test =  livePageViewModel.state.value
-//            Log.d("test",test.toString())
-//            livePageViewModel.state.value is LiveGamesState.Data
-//        }
-
-
-
-
-        composeTestRule.waitUntil(timeoutMillis = 5_000) {
-            composeTestRule.runOnIdle {
-                Log.d("Current state"," ${livePageViewModel.state.value}")
-            }
-            livePageViewModel.state.value is LiveGamesState.Data
-        }
-//
-//        composeRule.waitForIdle()
-//        composeRule.waitUntil(timeoutMillis = 5_000) {
-//            composeRule.onNodeWithTag("favoriteFilterSwitch").isDisplayed()
-//        }
-
-//        assertThat(
-//            currentState is LiveGamesState.Data
-//        ).isTrue()
-//
-//
-//        composeTestRule.onNodeWithText((currentState as? LiveGamesState.Data)?.sports?.firstOrNull()?.liveGameFirstRow?.firstOrNull()?.teamHome ?: "")
-//            .assertIsDisplayed()
-//
-//        composeRule.onNodeWithText("MossFK").assertIsDisplayed()
-//        composeRule.onNodeWithText("DenmarkU19").assertIsDisplayed()
-//        composeRule.onNodeWithText("SpainU19").assertIsDisplayed()
-//        composeRule.onNodeWithText("BarrowII").assertIsDisplayed()
-//        composeRule.onNodeWithText("SalfordCityII").assertIsNotDisplayed()
-//
-//        composeRule.onNodeWithTag(testTag = "rowItem0").assertIsDisplayed()
-
     }
-
-//    fun test() = runTest {
-//        repositoryFake.liveGames.
-//    }
-
-
 }

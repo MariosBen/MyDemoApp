@@ -1,4 +1,4 @@
-package com.benetatos.core.util
+package com.benetatos.livepage_presentation
 
 sealed class UiEvent {
     data class FavoriteUnFavoriteGame(val isFavorite : Boolean, val gameId : String ,val sportId : String) : UiEvent()

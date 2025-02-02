@@ -24,7 +24,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.benetatos.core.util.UiEvent
+import com.benetatos.livepage_presentation.UiEvent
 import com.benetatos.core_ui.LocalSpacing
 import com.benetatos.core_ui.blue
 import com.benetatos.core_ui.grey

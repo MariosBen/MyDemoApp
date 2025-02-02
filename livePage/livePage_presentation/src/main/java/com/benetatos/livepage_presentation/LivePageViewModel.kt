@@ -1,8 +1,8 @@
 package com.benetatos.livepage_presentation
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.benetatos.core.util.UiEvent
 import com.benetatos.livepage_domain.model.FavoriteLiveGame
 import com.benetatos.livepage_domain.use_case.LiveGamesAllUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,12 +33,11 @@ class LivePageViewModel @Inject constructor(
             favoriteFilterClicked
         ) { liveGames, expandCollapse, favoriteFilterClicked ->
 
-
             if (liveGames.isFailure) {
-                return@combine LiveGamesState.Error("No Internet error")
+                LiveGamesState.Error("No Internet error")
             }
 
-            return@combine     liveGames.getOrNull()?.let {
+            liveGames.getOrNull()?.let {
                 LiveGamesState.Data(
                     sports = it,
                     isExpandedList = expandCollapse,
@@ -48,6 +48,7 @@ class LivePageViewModel @Inject constructor(
 
         }
             .catch { error ->
+                Log.d("marios", error.toString())
                 emit(
                     LiveGamesState.Error(
                         error.message ?: "Unknown error"
